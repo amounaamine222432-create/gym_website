@@ -1,0 +1,217 @@
+#hero {
+  scroll-margin-top: 80px;
+}
+
+.review-box {
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#events {
+  background: #f8fafc;
+
+  .btn-brand {
+    background: var(--brand);
+    color: #fff;
+  }
+
+  .btn-brand:hover {
+    background: #5849d6;
+  }
+
+  .card img {
+    height: 200px;
+    object-fit: cover;
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  }
+}
+#events {
+  background: #f8fafc;
+
+  .carousel-item {
+    transition: transform 1s ease-in-out;
+  }
+
+  .card {
+    border: none;
+    transition: transform 0.4s, box-shadow 0.4s;
+
+    img {
+      height: 200px;
+      object-fit: cover;
+    }
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    filter: invert(0.4) sepia(1) saturate(6) hue-rotate(200deg);
+  }
+}
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  filter: invert(0.5) sepia(1) saturate(5) hue-rotate(210deg);
+  background-size: 60%;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+.carousel-control-prev-icon:hover,
+.carousel-control-next-icon:hover {
+  background-color: rgba(52, 152, 219, 0.9);
+}
+#athletes {
+  background: #fff;
+
+  .card {
+    transition: transform 0.4s, box-shadow 0.4s;
+    img {
+      height: 240px;
+      object-fit: cover;
+    }
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+}
+#athletes {
+  background: #f8fafc;
+
+  .card {
+    transition: transform 0.4s, box-shadow 0.4s;
+    border-radius: 1rem;
+    img {
+      height: 220px;
+      object-fit: cover;
+    }
+  }
+
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  h6 {
+    font-weight: 600;
+  }
+
+  .fst-italic {
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+}
+#athletes {
+  background: #f8fafc;
+
+  .btn {
+    border-radius: 50px;
+    padding: 0.4rem 1.2rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-brand {
+    background-color: #6c5ce7;
+    color: #fff;
+  }
+
+  .btn-outline-primary:hover {
+    background-color: #6c5ce7;
+    color: #fff;
+  }
+
+  .card img {
+    height: 260px;
+    object-fit: cover;
+  }
+
+.card-img-top {
+  height: 300px;
+  object-fit: cover;
+  object-position: center;
+}
+html {
+  scroll-behavior: smooth;
+}
+
+
+
+  
+}
+#sponsors {
+  background: #fff;
+  padding: 4rem 0;
+  overflow: hidden;
+
+  h2 {
+    font-weight: 700;
+  }
+
+  p {
+    color: #6c757d;
+  }
+
+  .sponsor-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    display: flex;
+    justify-content: center;
+    scrollbar-width: none;
+  }
+
+  .sponsor-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sponsor-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+
+  .sponsor-row img {
+    height: 55px; /* ✅ taille fixe */
+    width: auto;
+    max-width: 140px; /* ✅ limite la largeur */
+    object-fit: contain;
+    filter: grayscale(100%) brightness(0.9);
+    opacity: 0.85;
+    transition: all 0.3s ease;
+  }
+
+  .sponsor-row img:hover {
+    transform: scale(1.1);
+    filter: grayscale(0%) brightness(1);
+    opacity: 1;
+  }
+
+  /* ✅ Responsive */
+  @media (max-width: 768px) {
+    .sponsor-row {
+      gap: 2rem;
+    }
+
+    .sponsor-row img {
+      height: 40px;
+      max-width: 100px;
+    }
+  }
+}
+

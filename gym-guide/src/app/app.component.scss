@@ -1,0 +1,14 @@
+:host { display:flex; min-height:100vh; flex-direction:column; }
+main.onepage { flex:1; }
+
+/* sections apparentes à l’entrée du viewport */
+.section { scroll-margin-top: 90px; opacity:0; transform: translateY(12px); transition: all .35s ease; }
+.section.section-in { opacity:1; transform:none; }
+
+/* exemple de hero doux */
+.hero {
+  padding: 4rem 0 2rem;
+  background:
+    radial-gradient(1000px 500px at 20% 10%, rgba(108,92,231,.12), transparent 60%),
+    linear-gradient(135deg, rgba(0,209,178,.10), rgba(108,92,231,.10));
+}
