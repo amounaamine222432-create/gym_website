@@ -65,32 +65,44 @@ export class LoginComponent {
 
     // ✅ Appel API : login par email + mot de passe
     this.api.login(email, password).subscribe({
-      next: (res) => {
-        this.loading = false;
-        this.success = '🎉 Connexion réussie !';
+  next: (res) => {
+    this.loading = false;
 
-        // ✅ Stockage du token JWT pour les futures requêtes
-        if (res?.access) {
-          localStorage.setItem('token', res.access);
-        }
+    // Vérifie que l'API renvoie bien les tokens JWT
+    if (res?.access && res?.refresh) {
 
-        // ✅ Redirection vers la page du profil utilisateur
-        setTimeout(() => this.router.navigate(['/profil']), 1000);
-      },
-      error: (err) => {
-        this.loading = false;
-        console.error('Erreur connexion:', err);
+      // Enregistre les tokens
+      localStorage.setItem('access', res.access);
+      localStorage.setItem('refresh', res.refresh);
 
-        // Gestion précise des erreurs
-        if (err.status === 401) {
-          this.error = '❌ Email ou mot de passe incorrect.';
-        } else if (err.status === 400) {
-          this.error = '❌ Requête invalide. Vérifie tes informations.';
-        } else {
-          this.error = '⚠️ Erreur de connexion au serveur.';
-        }
-      }
-    });
+      this.success = '🎉 Connexion réussie !';
+
+      // Redirection vers la page profil
+      this.router.navigate(['/profil']);
+    } else {
+      this.error = '⚠️ Réponse invalide du serveur.';
+    }
+  },
+
+  error: (err) => {
+    this.loading = false;
+    console.error('Erreur connexion:', err);
+
+    if (err.status === 401) {
+      this.error = '❌ Email ou mot de passe incorrect.';
+    } 
+    else if (err.status === 400) {
+      this.error = '⚠️ Requête invalide. Vérifie les champs.';
+    }
+    else if (err.status === 0) {
+      this.error = '⚠️ Impossible de contacter le serveur.';
+    }
+    else {
+      this.error = '⚠️ Erreur inconnue. Réessaye plus tard.';
+    }
+  }
+});
+
   }
 
   goToSignup() {

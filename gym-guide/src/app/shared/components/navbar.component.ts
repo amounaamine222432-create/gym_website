@@ -9,57 +9,93 @@ import { ThemeToggleComponent } from './theme-toggle.component';
   imports: [CommonModule, RouterLink, RouterLinkActive, ThemeToggleComponent],
   template: `
   <nav class="navbar navbar-expand-lg navbar-glass fixed-top py-3" [class.scrolled]="scrolled">
-    <div class="container">
-      <a class="navbar-brand fw-bold d-flex align-items-center gap-1" routerLink="/">
-        <i class="bi bi-activity text-primary"></i>
-        <span>GYM</span><span class="text-primary">GUIDE</span>
-      </a>
+  <div class="container">
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-1" routerLink="/">
+      <i class="bi bi-activity text-primary"></i>
+      <span>GYM</span><span class="text-primary">GUIDE</span>
+    </a>
 
-      <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navGG">
+    <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navGG">
         <span class="navbar-toggler-icon"></span>
-      </button>
+    </button>
 
-      <div class="collapse navbar-collapse" id="navGG">
-        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3 text-center">
-          
-          <!-- 🔗 One Page Scroll Links -->
-          <li class="nav-item"><a class="nav-link" (click)="scrollTo('hero')">Accueil</a></li>
-          <li class="nav-item"><a class="nav-link" (click)="scrollTo('tarifs')">Tarifs</a></li>
+    <div class="collapse navbar-collapse" id="navGG">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3 text-center">
 
-          <!-- 🆕 Nouveautés -->
-<li class="nav-item position-relative">
-  <a class="nav-link d-flex align-items-center gap-1" (click)="scrollTo('nouveautes')">
-    <i class="bi bi-stars text-primary"></i> Nouveautés
-    <span
-      class="badge pulse-badge position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
-    </span>
+        <!-- 🔗 One Page Scroll Links -->
+        <li class="nav-item"><a class="nav-link" (click)="scrollTo('hero')">Accueil</a></li>
+        <li class="nav-item"><a class="nav-link" (click)="scrollTo('tarifs')">Tarifs</a></li>
+
+        <li class="nav-item position-relative">
+          <a class="nav-link d-flex align-items-center gap-1" (click)="scrollTo('nouveautes')">
+            <i class="bi bi-stars text-primary"></i> Nouveautés
+            <span class="badge pulse-badge position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+          </a>
+        </li>
+
+        <li class="nav-item"><a class="nav-link" (click)="scrollTo('avis')">Avis</a></li>
+        <li class="nav-item"><a class="nav-link" (click)="scrollTo('news')">Actualités</a></li>
+        <li class="nav-item"><a class="nav-link" (click)="scrollTo('contact')">Contact</a></li>
+
+                  <!-- MENU COURS avec dropdown -->
+    <li class="nav-item dropdown d-none d-lg-block">
+  <a class="nav-link dropdown-toggle" href="#" id="coursMenu" data-bs-toggle="dropdown">
+    Cours
   </a>
+
+  <ul class="dropdown-menu">
+
+    <!-- TOUS les cours (toujours visible) -->
+    <li>
+      <a class="dropdown-item" routerLink="/courses">Tous les cours</a>
+    </li>
+
+    <!-- MES COURS visible uniquement si connecté -->
+    <li *ngIf="isLogged">
+      <a class="dropdown-item" routerLink="/mes-cours">Mes cours</a>
+    </li>
+
+  </ul>
+</li>
+
+<li class="nav-item d-none d-lg-block">
+  <a class="nav-link" routerLink="/coaches" routerLinkActive="active">Coachs</a>
 </li>
 
 
-          <li class="nav-item"><a class="nav-link" (click)="scrollTo('avis')">Avis</a></li>
-          <li class="nav-item"><a class="nav-link" (click)="scrollTo('news')">Actualités</a></li>
-          <li class="nav-item"><a class="nav-link" (click)="scrollTo('contact')">Contact</a></li>
+        <!-- 🌗 Dark Mode -->
+        <li class="nav-item">
+          <app-theme-toggle></app-theme-toggle>
+        </li>
 
-          <!-- 🔗 Autres pages -->
-          <li class="nav-item d-none d-lg-block">
-            <a class="nav-link" routerLink="/courses" routerLinkActive="active">Cours</a>
-          </li>
-          <li class="nav-item d-none d-lg-block">
-            <a class="nav-link" routerLink="/coaches" routerLinkActive="active">Coachs</a>
-          </li>
-
-          <!-- 🌗 Dark Mode -->
-          <li class="nav-item"><app-theme-toggle></app-theme-toggle></li>
-
-          <!-- 🔐 Connexion -->
+        <!-- 🔐 Connexion / Profil selon état -->
+        <ng-container *ngIf="!isLogged; else userMenu">
           <li class="nav-item mt-2 mt-lg-0">
             <a class="btn btn-sm btn-brand rounded-pill px-3 ms-lg-2" routerLink="/login">Connexion</a>
           </li>
-        </ul>
-      </div>
+        </ng-container>
+
+        <!-- 👤 Menu Utilisateur -->
+        <ng-template #userMenu>
+          <li class="nav-item dropdown mt-2 mt-lg-0">
+            <a class="btn btn-sm btn-outline-primary rounded-pill px-3 ms-lg-2 dropdown-toggle" 
+               data-bs-toggle="dropdown"
+               href="#">
+              Mon Compte
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" routerLink="/profil">👤 Voir Profil</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" (click)="logout()">🚪 Déconnexion</a></li>
+            </ul>
+          </li>
+        </ng-template>
+
+      </ul>
     </div>
-  </nav>
+  </div>
+</nav>
+
   `,
   styles: [`
     .navbar { transition: background-color .3s, box-shadow .3s; }
@@ -136,5 +172,15 @@ private scrollSmooth(id: string) {
     if (navCollapse && navCollapse.classList.contains('show')) {
       (window as any).bootstrap?.Collapse.getOrCreateInstance(navCollapse)?.hide();
     }
+  }
+
+    get isLogged(): boolean {
+    return !!localStorage.getItem('access');
+  }
+
+  logout() {
+    localStorage.removeItem('access');
+    localStorage.removeItem('refresh');
+    this.router.navigate(['/login']);
   }
 }

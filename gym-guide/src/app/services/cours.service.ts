@@ -5,12 +5,59 @@ import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class CoursService {
-  private baseUrl = 'http://127.0.0.1:8000/api/cours/';
+
+  private api = 'http://127.0.0.1:8000/api';
+  private baseUrl = "http://127.0.0.1:8000/api";
 
   constructor(private http: HttpClient, private auth: AuthService) {}
 
-  getCours(): Observable<any> {
-    const headers = this.auth.getAuthHeaders();
-    return this.http.get(this.baseUrl, { headers });
+  /** 🔹 Récupérer tous les cours */
+  getAllCours(): Observable<any> {
+    return this.http.get(`${this.api}/cours/`, {
+      headers: this.auth.getAuthHeaders()
+    });
   }
+
+  /** 🔹 Récupérer les cours du user */
+  getMesCours(): Observable<any> {
+    return this.http.get(`${this.api}/cours/mes/`, {
+      headers: this.auth.getAuthHeaders()
+    });
+  }
+
+  /** 🔹 Rejoindre un cours */
+  joinCours(id: number): Observable<any> {
+    return this.http.post(`${this.api}/cours/join/`,
+      { cours_id: id },
+      { headers: this.auth.getAuthHeaders() }
+    );
+  }
+
+  /** 🔹 Quitter un cours */
+  quitCours(id: number): Observable<any> {
+    return this.http.delete(`${this.api}/cours/quit/${id}/`, {
+      headers: this.auth.getAuthHeaders()
+    });
+  }
+  getCoachs(coursId: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/cours/${coursId}/coachs/`);
+  }
+
+  choisirCoach(coursId: number, coachId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/cours/choisir-coach/`, {
+      cours_id: coursId,
+      coach_id: coachId
+    });
+  }
+
+  // ==========================
+  //  🔥 SÉANCES
+  // ==========================
+
+  getSeances(coursId: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/cours/${coursId}/seances/`);
+  }
+
 }
+
+

@@ -1,8 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { Observable, of, delay, map , catchError, tap } from 'rxjs';
 import { HttpClient , HttpHeaders } from '@angular/common/http';
-import { Course, Coach, Tarif, Review, News, Message, SportEvent ,Athlete } from '../models';
-import { UserProfile } from '../models';
+import { Course, Coach, Tarif, Review, News, Message, SportEvent ,Athlete, FullProfile } from '../models';
 
 
 @Injectable({ providedIn: 'root' })
@@ -43,12 +42,8 @@ private baseUrl = 'http://127.0.0.1:8000/api';
   return this.http.post(`${this.baseUrl}/token/`, { email, password }).pipe(
     tap((res: any) => {
       // ✅ Si le backend renvoie bien les tokens
-      if (res?.access) {
-        localStorage.setItem(this.tokenKey, res.access);
-      }
-      if (res?.refresh) {
-        localStorage.setItem('refresh_token', res.refresh);
-      }
+      if (res?.access) localStorage.setItem('access', res.access);
+        if (res?.refresh) localStorage.setItem('refresh', res.refresh);
     }),
     // ⚠️ Gestion propre des erreurs HTTP (utile en debug)
     catchError((err) => {
@@ -63,12 +58,14 @@ private baseUrl = 'http://127.0.0.1:8000/api';
 
   // Déconnexion
   logout(): void {
-    localStorage.removeItem(this.tokenKey);
+      localStorage.removeItem('access');
+    localStorage.removeItem('refresh');
   }
 
   // Récupérer le token
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+        return localStorage.getItem('access');
+
   }
 
   // Vérifier si l'utilisateur est connecté
@@ -92,16 +89,29 @@ private baseUrl = 'http://127.0.0.1:8000/api';
     return this.http.get(`${this.baseUrl}/cours/`, { headers });
   }
 
-  // Profil de l'utilisateur connecté
-  getProfile(): Observable<UserProfile> {
-  const token = localStorage.getItem('token');
+  // Profil de l'utilisateur connect
+  getProfile(): Observable<FullProfile> {
+  const token = localStorage.getItem('access');
 
-  return this.http.get<UserProfile>(`${this.baseUrl}/user/profile/`, {
-    headers: new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    })
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
+
+  return this.http.get<FullProfile>(`${this.baseUrl}/user/profile/`, { headers });
+}
+
+
+
+
+// Modifier profil complet
+updateFullProfile(data: FormData) {
+  const token = localStorage.getItem('access');  // ✔ pas 'token'
+  
+  return this.http.put(`${this.baseUrl}/user/update-profile/`, data, {
+    headers: new HttpHeaders({ Authorization: `Bearer ${token}` })
   });
 }
+
 
 
   // 🧍‍♂️ Liste des coachs

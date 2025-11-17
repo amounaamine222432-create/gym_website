@@ -62,5 +62,6 @@ export class CourseDetailComponent {
       }
     });
   }
+  
 }
 

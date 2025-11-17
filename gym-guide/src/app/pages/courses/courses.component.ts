@@ -86,4 +86,7 @@ export class CoursesComponent {
   });
   constructor(private api: ApiService) {}
   ngOnInit() { this.api.getCourses().subscribe(cs => this.courses.set(cs)); }
+
+  
 }
+

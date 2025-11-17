@@ -52,17 +52,28 @@ export interface Athlete {
   description?: string;
   image?: string;
 }
-export interface UserProfile {
+export interface FullProfile {
   id: number;
   email: string;
   username: string;
-  first_name?: string;
-  last_name?: string;
-  age?: number;
-  sex?: string;
-  photo?: string|null;
+
+  first_name: string;
+  last_name: string;
+  sex: string;
+  age: number;
+  photo: string | null;
+
+  date_naissance?: string;
+  telephone?: string;
+  poids?: number;
+  taille?: number;
+  objectif?: string;
+  niveau?: string;
+  frequence_entrainement?: number;
+
   date_joined: string;
 }
+
 
 export interface Tarif{ id:number; title:string; price:number; features:string[]; best?:boolean; }
 export interface Review{ id:number; name:string; comment:string; rating:number; }
