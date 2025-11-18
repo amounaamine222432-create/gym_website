@@ -90,29 +90,33 @@ private baseUrl = 'http://127.0.0.1:8000/api';
   }
 
   // Profil de l'utilisateur connect
-  getProfile(): Observable<FullProfile> {
-  const token = localStorage.getItem('access');
+              getProfile(): Observable<FullProfile> {
+        const token = localStorage.getItem('access');
 
-  const headers = new HttpHeaders({
-    Authorization: `Bearer ${token}`
-  });
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+        });
 
   return this.http.get<FullProfile>(`${this.baseUrl}/user/profile/`, { headers });
 }
 
-
-
-
-// Modifier profil complet
 updateFullProfile(data: FormData) {
-  const token = localStorage.getItem('access');  // ✔ pas 'token'
-  
-  return this.http.put(`${this.baseUrl}/user/update-profile/`, data, {
-    headers: new HttpHeaders({ Authorization: `Bearer ${token}` })
+  const token = localStorage.getItem('access');
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`,
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache'
   });
+
+  return this.http.put(`${this.baseUrl}/user/update-profile/`, data, { headers });
 }
 
-
+getStatus() {
+  return this.http.get(`${this.baseUrl}/user/status`);
+}
 
   // 🧍‍♂️ Liste des coachs
   private _coaches = signal<Coach[]>([
@@ -312,3 +316,4 @@ signup(data: FormData): Observable<any> {
       console.error('❌ Erreur inscription:', err);
       throw err;
     })
+    

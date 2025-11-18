@@ -11,6 +11,7 @@ import { ApiService } from '../../services/api.service';
   template: `
   <div class="container py-5 d-flex justify-content-center align-items-center" style="min-height:80vh;">
     <div class="bg-white p-4 rounded-4 shadow-soft" style="max-width:500px;width:100%;">
+
       <h3 class="mb-3 text-center fw-bold">Connexion</h3>
 
       <form #f="ngForm" (ngSubmit)="submit(f)">
@@ -29,7 +30,6 @@ import { ApiService } from '../../services/api.service';
         </button>
       </form>
 
-      <!-- ✅ Messages -->
       <div *ngIf="success" class="alert alert-success mt-3 text-center">
         {{ success }}
       </div>
@@ -43,11 +43,13 @@ import { ApiService } from '../../services/api.service';
           Créer un compte
         </button>
       </div>
+
     </div>
   </div>
   `
 })
 export class LoginComponent {
+
   loading = false;
   success = '';
   error = '';
@@ -63,46 +65,87 @@ export class LoginComponent {
 
     const { email, password } = f.value;
 
-    // ✅ Appel API : login par email + mot de passe
+    // 🔐 Connexion → Django
     this.api.login(email, password).subscribe({
-  next: (res) => {
-    this.loading = false;
 
-    // Vérifie que l'API renvoie bien les tokens JWT
-    if (res?.access && res?.refresh) {
+      next: (res) => {
+        this.loading = false;
 
-      // Enregistre les tokens
-      localStorage.setItem('access', res.access);
-      localStorage.setItem('refresh', res.refresh);
+        if (res?.access && res?.refresh) {
 
-      this.success = '🎉 Connexion réussie !';
+          // 💾 Stockage tokens
+          localStorage.setItem('access', res.access);
+          localStorage.setItem('refresh', res.refresh);
 
-      // Redirection vers la page profil
-      this.router.navigate(['/profil']);
-    } else {
-      this.error = '⚠️ Réponse invalide du serveur.';
-    }
-  },
+          this.success = '🎉 Connexion réussie !';
 
-  error: (err) => {
-    this.loading = false;
-    console.error('Erreur connexion:', err);
+          // 📌 Vérifier état du profil : /user/status
+          this.api.getStatus().subscribe({
 
-    if (err.status === 401) {
-      this.error = '❌ Email ou mot de passe incorrect.';
-    } 
-    else if (err.status === 400) {
-      this.error = '⚠️ Requête invalide. Vérifie les champs.';
-    }
-    else if (err.status === 0) {
-      this.error = '⚠️ Impossible de contacter le serveur.';
-    }
-    else {
-      this.error = '⚠️ Erreur inconnue. Réessaye plus tard.';
-    }
-  }
-});
+            next: (status) => {
+              // Stocker l’utilisateur dans localStorage
+            localStorage.setItem("user", JSON.stringify({
+                  username: res.username,
+                  email: res.email,
+                  first_name: res.first_name,
+                  last_name: res.last_name,
+                  photo: res.photo
+              }));
 
+              localStorage.setItem(
+                    "user_status",
+                    JSON.stringify({ is_profile_completed: res.is_profile_completed })
+                  );
+
+
+              // Redirection → DASHBOARD (toujours)
+              this.router.navigate(['/dashboard']);
+            },
+
+            // ❌ Erreur getStatus()
+            error: (err: any) => {
+              this.loading = false;
+              console.error('Erreur statut utilisateur :', err);
+
+              if (err.status === 401) {
+                this.error = '❌ Email ou mot de passe incorrect.';
+              }
+              else if (err.status === 400) {
+                this.error = '⚠️ Requête invalide. Vérifie les champs.';
+              }
+              else if (err.status === 0) {
+                this.error = '⚠️ Impossible de contacter le serveur.';
+              }
+              else {
+                this.error = '⚠️ Erreur inconnue. Réessayez plus tard.';
+              }
+            }
+          });
+
+        } else {
+          this.error = '⚠️ Réponse invalide du serveur.';
+        }
+      },
+
+      // ❌ Erreur login()
+      error: (err: any) => {
+        this.loading = false;
+        console.error('Erreur connexion :', err);
+
+        if (err.status === 401) {
+          this.error = '❌ Email ou mot de passe incorrect.';
+        }
+        else if (err.status === 400) {
+          this.error = '⚠️ Requête invalide. Vérifie les champs.';
+        }
+        else if (err.status === 0) {
+          this.error = '⚠️ Impossible de contacter le serveur.';
+        }
+        else {
+          this.error = '⚠️ Erreur inconnue. Réessayez plus tard.';
+        }
+      }
+    });
   }
 
   goToSignup() {

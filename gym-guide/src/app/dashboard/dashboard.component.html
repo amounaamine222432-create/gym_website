@@ -1,0 +1,151 @@
+<div class="dashboard container py-4">
+
+  <!-- 🟡 ALERTE PROFIL INCOMPLET -->
+  <div *ngIf="!profileCompleted"
+       class="alert-card card border-0 shadow-sm mb-4 animate-alert">
+
+    <div class="card-body d-flex align-items-center gap-3">
+      <div class="alert-icon-wrapper flex-shrink-0">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+      </div>
+
+      <div class="flex-grow-1">
+        <h5 class="fw-bold mb-1">Profil incomplet</h5>
+        <p class="mb-2 text-muted small">
+          Pour recevoir des recommandations personnalisées, complétez votre profil.
+        </p>
+
+        <button routerLink="/profil"
+                class="btn btn-warning btn-sm rounded-pill px-3 fw-semibold">
+          ✏️ Compléter mon profil
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 👋 HEADER -->
+  <div class="dash-header mb-4">
+    <h1 class="fw-bold">
+Bonjour, <span class="text-primary">{{ user.first_name || user.username }}</span> 👋
+</h1>
+<p class="text-muted">Heureux de vous revoir aujourd’hui.</p>
+
+  <!-- 📊 STATISTIQUES -->
+  <div class="row g-4 mb-4">
+
+    <div class="col-md-4">
+      <div class="card stat-card shadow-sm p-4 text-center">
+        <div class="stat-icon text-primary mb-2">
+          <i class="bi bi-journal-check fs-1"></i>
+        </div>
+        <h3 class="fw-bold mb-0">{{ stats?.cours || 0 }}</h3>
+        <span class="text-muted small">Cours suivis</span>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card stat-card shadow-sm p-4 text-center">
+        <div class="stat-icon text-success mb-2">
+          <i class="bi bi-people-fill fs-1"></i>
+        </div>
+        <h3 class="fw-bold mb-0">{{ stats?.coachs || 0 }}</h3>
+        <span class="text-muted small">Coachs rencontrés</span>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card stat-card shadow-sm p-4 text-center">
+        <div class="stat-icon text-danger mb-2">
+          <i class="bi bi-calendar-week fs-1"></i>
+        </div>
+        <h3 class="fw-bold mb-0">{{ stats?.seances || 0 }}</h3>
+        <span class="text-muted small">Séances à venir</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 📈 PROGRESSION HEBDOMADAIRE -->
+  <div class="card shadow-sm border-0 progress-card mb-4">
+    <div class="card-body">
+      <h5 class="fw-bold mb-3">Progression hebdomadaire</h5>
+
+      <div class="progress-graph">
+        <div class="bar" *ngFor="let value of weeklyProgress; let i = index"
+             [style.--value]="value"
+             [style.animation-delay]="i * 0.08 + 's'">
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between small text-muted mt-2">
+        <span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span>
+        <span>Ven</span><span>Sam</span><span>Dim</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⚡ ACCÈS RAPIDE -->
+  <h4 class="fw-bold mb-3">Accès rapide</h4>
+
+  <div class="row g-4">
+
+    <div class="col-md-4">
+      <div class="quick-card card shadow-sm p-3 d-flex align-items-center gap-3">
+        <div class="quick-icon text-primary">
+          <i class="bi bi-search fs-4"></i>
+        </div>
+        <div>
+          <div class="fw-semibold">Explorer les cours <span class="badge bg-info ms-2">Nouveau</span></div>
+          <small class="text-muted">Tous les programmes disponibles</small>
+        </div>
+        <a routerLink="/courses" class="stretched-link"></a>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="quick-card card shadow-sm p-3 d-flex align-items-center gap-3">
+        <div class="quick-icon text-info">
+          <i class="bi bi-journal-bookmark fs-4"></i>
+        </div>
+        <div>
+          <div class="fw-semibold">Mes cours</div>
+          <small class="text-muted">Reprendre vos leçons</small>
+        </div>
+        <a routerLink="/mes-cours" class="stretched-link"></a>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="quick-card card shadow-sm p-3 d-flex align-items-center gap-3">
+        <div class="quick-icon text-danger">
+          <i class="bi bi-bullseye fs-4"></i>
+        </div>
+        <div>
+          <div class="fw-semibold">Mes coachs</div>
+          <small class="text-muted">Gérer vos contacts coachs</small>
+        </div>
+        <a routerLink="/coaches" class="stretched-link"></a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 🕒 ACTIVITÉ RÉCENTE -->
+  <div class="card border-0 shadow-sm mt-4">
+    <div class="card-body">
+      <h5 class="fw-bold mb-3">Activité récente</h5>
+
+      <ul class="timeline">
+        <li *ngFor="let item of recentActivity">
+          <span class="dot"></span>
+          <div class="content">
+            <p class="fw-semibold mb-1">{{ item.title }}</p>
+            <small class="text-muted">{{ item.date }}</small>
+          </div>
+        </li>
+      </ul>
+
+    </div>
+  </div>
+
+</div>

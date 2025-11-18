@@ -1,18 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MesCoursComponent } from './mes-cours.component';
 
-import { MesCours } from './mes-cours';
-
-describe('MesCours', () => {
-  let component: MesCours;
-  let fixture: ComponentFixture<MesCours>;
+describe('MesCoursComponent', () => {
+  let component: MesCoursComponent;
+  let fixture: ComponentFixture<MesCoursComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MesCours]
+      imports: [MesCoursComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(MesCours);
+    fixture = TestBed.createComponent(MesCoursComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -21,3 +20,4 @@ describe('MesCours', () => {
     expect(component).toBeTruthy();
   });
 });
+

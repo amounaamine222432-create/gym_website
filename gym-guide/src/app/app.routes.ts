@@ -61,6 +61,21 @@ export const routes: Routes = [
     import('./components/mes-cours/mes-cours.component')
       .then(m => m.MesCoursComponent)
 },
+{
+  path: 'dashboard',
+  loadComponent: () =>
+    import('./dashboard/dashboard.component')
+      .then(m => m.DashboardComponent)
+},
+
+{
+  path: 'dashboard',
+  canActivate: [() => !!localStorage.getItem('access')],
+  loadComponent: () =>
+    import('./dashboard/dashboard.component').then(m => m.DashboardComponent)
+},
+
+
 
 
 

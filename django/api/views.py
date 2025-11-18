@@ -8,6 +8,38 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from .models import Profile, Adherent,Cours,CoursParticipation,Coach,Seance,CoachCours
+from datetime import datetime
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+# ---condition complete---------------------------------------------------
+def check_profile_completed(profile: Profile, adherent: Adherent) -> bool:
+
+    def is_filled(value):
+        return value not in [None, "", "null", "None"]
+
+    required_profile_fields = [
+        profile.first_name,
+        profile.last_name,
+        profile.age,
+        profile.sex,
+        profile.photo,
+    ]
+
+    required_adherent_fields = [
+        adherent.telephone,
+        adherent.objectif,
+        adherent.niveau,
+        adherent.poids,
+        adherent.date_naissance,
+        adherent.taille,
+        adherent.frequence_entrainement,
+    ]
+
+    all_fields = required_profile_fields + required_adherent_fields
+
+    return all(is_filled(f) for f in all_fields)
+
 
 
 # ---REGISTER------------------------------------------------------
@@ -63,6 +95,8 @@ def register(request):
 
 # 2️⃣ LOGIN EMAIL / PASSWORD
 # ---------------------------------------------------------
+# 2️⃣ LOGIN EMAIL / PASSWORD
+# ---------------------------------------------------------
 class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = "email"
 
@@ -81,11 +115,25 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
             raise serializers.ValidationError({"detail": "Mot de passe incorrect."})
 
         refresh = self.get_token(user)
+        profile = Profile.objects.get(user=user)
 
-        return {
+        # --- Construction réponse complète ---
+        data = {
             "refresh": str(refresh),
             "access": str(refresh.access_token),
+            "username": user.username,
+            "email": user.email,
+            "first_name": profile.first_name,
+            "last_name": profile.last_name,
+            "photo": (
+                self.context["request"].build_absolute_uri(profile.photo.url)
+                if profile.photo else None
+            ),
+            "is_profile_completed": profile.is_profile_completed,
         }
+
+        return data
+
 
 
 class EmailTokenObtainPairView(TokenObtainPairView):
@@ -112,11 +160,15 @@ def full_profile(request):
         "id": user.id,
         "email": user.email,
         "username": user.username,
+
         "first_name": profile.first_name,
         "last_name": profile.last_name,
         "sex": profile.sex,
         "age": profile.age,
+
+        # ✅ ON MET UNE SEULE VERSION DE LA PHOTO
         "photo": request.build_absolute_uri(profile.photo.url) if profile.photo else None,
+
         "date_naissance": adherent.date_naissance,
         "telephone": adherent.telephone,
         "poids": adherent.poids,
@@ -124,9 +176,28 @@ def full_profile(request):
         "objectif": adherent.objectif,
         "niveau": adherent.niveau,
         "frequence_entrainement": adherent.frequence_entrainement,
+
+        "is_profile_completed": profile.is_profile_completed,
     }
 
     return Response(data)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_status(request):
+    user = request.user
+
+    profile, _ = Profile.objects.get_or_create(user=user)
+    adherent, _ = Adherent.objects.get_or_create(user=user)
+
+    is_profile_ok = profile.is_completed()
+    is_adherent_ok = adherent.is_completed()
+
+    return Response({
+        "is_profile_completed": profile.is_profile_completed,
+        "profile_completed": is_profile_ok,
+        "adherent_completed": is_adherent_ok
+    })
+
 
 
 # ---------------------------------------------------------
@@ -135,60 +206,99 @@ def full_profile(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_full_profile(request):
-
+    print("🔵 DATA REÇUE :", request.data)
+    print("🟣 FILES :", request.FILES)
     user = request.user
-    profile = get_object_or_404(Profile, user=user)
+    profile = Profile.objects.get(user=user)
     adherent, _ = Adherent.objects.get_or_create(user=user)
 
-    # Email unique
-    email = request.data.get("email")
-    if email and email != user.email:
-        if User.objects.filter(email=email).exists():
-            return Response({"error": "Email déjà utilisé"}, status=400)
-        user.email = email
+    # -------------------------
+    # USER
+    # -------------------------
+    if "email" in request.data:
+        user.email = request.data["email"].strip()
 
-    # Username auto-unique
-    new_username = request.data.get("username")
-    if new_username and new_username != user.username:
-        base_username = new_username
-        username = new_username
-        i = 1
-        while User.objects.filter(username=username).exists():
-            username = f"{base_username}{i}"
-            i += 1
-        user.username = username
+    if "username" in request.data:
+        user.username = request.data["username"].strip()
 
     user.save()
 
-    # Profil
-    profile.first_name = request.data.get("first_name", profile.first_name)
-    profile.last_name = request.data.get("last_name", profile.last_name)
-    profile.sex = request.data.get("sex", profile.sex)
+    # -------------------------
+    # PROFILE
+    # -------------------------
+    profile.first_name = request.data.get("first_name", "").strip()
+    profile.last_name = request.data.get("last_name", "").strip()
 
-    if request.data.get("age"):
-        profile.age = int(request.data.get("age"))
+    age_val = request.data.get("age")
+    if age_val not in [None, ""]:
+        try:
+            profile.age = int(age_val)
+        except:
+            pass
+
+    if "sex" in request.data:
+        profile.sex = request.data["sex"]
 
     if "photo" in request.FILES:
         profile.photo = request.FILES["photo"]
 
     profile.save()
 
-    # Adherent
-    for field in ["date_naissance", "telephone", "objectif", "niveau"]:
-        setattr(adherent, field, request.data.get(field, getattr(adherent, field)))
+    # -------------------------
+    # ADHERENT
+    # -------------------------
 
-    if request.data.get("poids"):
-        adherent.poids = float(request.data.get("poids"))
+    # Date de naissance
+    date_val = request.data.get("date_naissance")
+    if date_val not in [None, "", "null", "None"]:
+        try:
+            adherent.date_naissance = datetime.strptime(date_val, "%Y-%m-%d").date()
+        except:
+            pass
 
-    if request.data.get("taille"):
-        adherent.taille = float(request.data.get("taille"))
+    adherent.telephone = request.data.get("telephone", "")
+    adherent.objectif = request.data.get("objectif", "")
+    adherent.niveau = request.data.get("niveau", "")
 
-    if request.data.get("frequence_entrainement"):
-        adherent.frequence_entrainement = int(request.data.get("frequence_entrainement"))
+    # Conversion sûre
+    def safe_float(v):
+        try:
+            return float(v)
+        except:
+            return None
+
+    def safe_int(v):
+        try:
+            return int(v)
+        except:
+            return None
+
+    p = safe_float(request.data.get("poids"))
+    if p is not None:
+        adherent.poids = p
+
+    t = safe_float(request.data.get("taille"))
+    if t is not None:
+        adherent.taille = t
+
+    f = safe_int(request.data.get("frequence_entrainement"))
+    if f is not None:
+        adherent.frequence_entrainement = f
 
     adherent.save()
 
-    return Response({"message": "Profil mis à jour avec succès"}, status=200)
+    # -------------------------
+    # COMPLETE OR NOT ?
+    # -------------------------
+    is_complete = check_profile_completed(profile, adherent)
+    profile.is_profile_completed = is_complete
+    profile.save()
+
+    return Response({
+        "message": "Profil mis à jour",
+        "photo_url": request.build_absolute_uri(profile.photo.url) if profile.photo else None,
+        "is_profile_completed": is_complete
+    }, status=200)
 
 @api_view(['GET'])
 def get_cours(request):
@@ -340,3 +450,4 @@ def get_coachs_by_cours(request, cours_id):
     } for c in coachs]
 
     return Response(data)
+

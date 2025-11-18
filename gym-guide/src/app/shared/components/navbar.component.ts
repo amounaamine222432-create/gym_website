@@ -10,91 +10,126 @@ import { ThemeToggleComponent } from './theme-toggle.component';
   template: `
   <nav class="navbar navbar-expand-lg navbar-glass fixed-top py-3" [class.scrolled]="scrolled">
   <div class="container">
+
+    <!-- BRAND -->
     <a class="navbar-brand fw-bold d-flex align-items-center gap-1" routerLink="/">
       <i class="bi bi-activity text-primary"></i>
       <span>GYM</span><span class="text-primary">GUIDE</span>
     </a>
 
-    <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navGG">
-        <span class="navbar-toggler-icon"></span>
+    <!-- BURGER MENU -->
+    <button class="navbar-toggler border-0 shadow-none" type="button"
+            data-bs-toggle="collapse" data-bs-target="#navGG">
+      <span class="navbar-toggler-icon"></span>
     </button>
 
+    <!-- NAVBAR CONTENT -->
     <div class="collapse navbar-collapse" id="navGG">
       <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3 text-center">
 
-        <!-- 🔗 One Page Scroll Links -->
-        <li class="nav-item"><a class="nav-link" (click)="scrollTo('hero')">Accueil</a></li>
-        <li class="nav-item"><a class="nav-link" (click)="scrollTo('tarifs')">Tarifs</a></li>
+        <!-- 🌍 NAV PUBLIC (VISITEUR NON CONNECTÉ) -->
+        <ng-container *ngIf="!isLogged">
 
-        <li class="nav-item position-relative">
-          <a class="nav-link d-flex align-items-center gap-1" (click)="scrollTo('nouveautes')">
-            <i class="bi bi-stars text-primary"></i> Nouveautés
-            <span class="badge pulse-badge position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-          </a>
-        </li>
+          <li class="nav-item"><a class="nav-link" (click)="scrollTo('hero')">Accueil</a></li>
+          <li class="nav-item"><a class="nav-link" (click)="scrollTo('tarifs')">Tarifs</a></li>
+          <li class="nav-item"><a class="nav-link" (click)="scrollTo('avis')">Avis</a></li>
+          <li class="nav-item"><a class="nav-link" (click)="scrollTo('news')">Actualités</a></li>
 
-        <li class="nav-item"><a class="nav-link" (click)="scrollTo('avis')">Avis</a></li>
-        <li class="nav-item"><a class="nav-link" (click)="scrollTo('news')">Actualités</a></li>
-        <li class="nav-item"><a class="nav-link" (click)="scrollTo('contact')">Contact</a></li>
-
-                  <!-- MENU COURS avec dropdown -->
-    <li class="nav-item dropdown d-none d-lg-block">
-  <a class="nav-link dropdown-toggle" href="#" id="coursMenu" data-bs-toggle="dropdown">
-    Cours
-  </a>
-
-  <ul class="dropdown-menu">
-
-    <!-- TOUS les cours (toujours visible) -->
-    <li>
-      <a class="dropdown-item" routerLink="/courses">Tous les cours</a>
-    </li>
-
-    <!-- MES COURS visible uniquement si connecté -->
-    <li *ngIf="isLogged">
-      <a class="dropdown-item" routerLink="/mes-cours">Mes cours</a>
-    </li>
-
-  </ul>
-</li>
-
-<li class="nav-item d-none d-lg-block">
-  <a class="nav-link" routerLink="/coaches" routerLinkActive="active">Coachs</a>
-</li>
-
-
-        <!-- 🌗 Dark Mode -->
-        <li class="nav-item">
-          <app-theme-toggle></app-theme-toggle>
-        </li>
-
-        <!-- 🔐 Connexion / Profil selon état -->
-        <ng-container *ngIf="!isLogged; else userMenu">
-          <li class="nav-item mt-2 mt-lg-0">
-            <a class="btn btn-sm btn-brand rounded-pill px-3 ms-lg-2" routerLink="/login">Connexion</a>
+          <!-- 🟩 COURS PUBLIC -->
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/courses">Cours</a>
           </li>
+
+          <!-- 🟩 COACHS PUBLIC -->
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/coaches">Coachs</a>
+          </li>
+
+          <!-- 🔵 CONNEXION -->
+          <li class="nav-item mt-2 mt-lg-0">
+            <a class="btn btn-sm btn-brand rounded-pill px-3 ms-lg-2" routerLink="/login">
+              Connexion
+            </a>
+          </li>
+
         </ng-container>
 
-        <!-- 👤 Menu Utilisateur -->
-        <ng-template #userMenu>
-          <li class="nav-item dropdown mt-2 mt-lg-0">
-            <a class="btn btn-sm btn-outline-primary rounded-pill px-3 ms-lg-2 dropdown-toggle" 
-               data-bs-toggle="dropdown"
-               href="#">
-              Mon Compte
+        <!-- 🔐 NAV PRIVÉE (UTILISATEUR CONNECTÉ) -->
+        <ng-container *ngIf="isLogged">
+
+          <!-- Cours (Toujours visible en privé) -->
+          <li class="nav-item dropdown d-none d-lg-block">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+              Cours
             </a>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" routerLink="/profil">👤 Voir Profil</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item text-danger" (click)="logout()">🚪 Déconnexion</a></li>
+
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" routerLink="/mes-cours">Mes cours</a></li>
             </ul>
           </li>
-        </ng-template>
+
+          <!-- Coachs visible -->
+          <li class="nav-item d-none d-lg-block">
+            <a class="nav-link" routerLink="/coaches">Coachs</a>
+          </li>
+          <li class="nav-item d-none d-lg-block" *ngIf="showProfileButton">
+               <a class="nav-link" routerLink="/profil">Mon Profil</a>
+              </li>
+
+          <!-- 🌗 Dark Mode -->
+          <li class="nav-item">
+            <app-theme-toggle></app-theme-toggle>
+          </li>
+
+          <!-- 👤 MENU UTILISATEUR -->
+          <li class="nav-item dropdown mt-2 mt-lg-0">
+            <a class="btn btn-sm btn-outline-primary rounded-pill px-3 ms-lg-2 dropdown-toggle"
+               data-bs-toggle="dropdown">
+              Mon Compte
+            </a>
+
+            <ul class="dropdown-menu dropdown-menu-end">
+
+              <!-- Dashboard -->
+              <li>
+                <a class="dropdown-item" routerLink="/dashboard">
+                  📊 Tableau de bord
+                </a>
+              </li>
+
+              <!-- Profil COMPLET -->
+
+
+             <!-- Compléter Profil (profil INCOMPLET) -->
+              <li *ngIf="!showProfileButton">
+                        <a class="dropdown-item text-warning" routerLink="/profil">
+                            ⚠️ Compléter mon profil
+                          </a>
+                </li>
+
+<li><hr class="dropdown-divider"></li>
+  
+              <li><hr class="dropdown-divider"></li>
+
+              <!-- Déconnexion -->
+              <li>
+                <a class="dropdown-item text-danger" (click)="logout()">
+                  🚪 Déconnexion
+                </a>
+              </li>
+
+            </ul>
+          </li>
+
+        </ng-container>
 
       </ul>
     </div>
+
   </div>
 </nav>
+
+
 
   `,
   styles: [`
@@ -175,12 +210,30 @@ private scrollSmooth(id: string) {
   }
 
     get isLogged(): boolean {
-    return !!localStorage.getItem('access');
+  return !!localStorage.getItem('access');
+}
+
+  get showProfileButton(): boolean {
+    const status = localStorage.getItem('user_status');
+    if (!status) return false;
+
+    return JSON.parse(status).is_profile_completed === true;
   }
+
+  
 
   logout() {
     localStorage.removeItem('access');
     localStorage.removeItem('refresh');
+    localStorage.removeItem("user_status");
+
     this.router.navigate(['/login']);
   }
+  get user() {
+  return JSON.parse(localStorage.getItem('user') || '{}');
+}
+
+
+
+
 }

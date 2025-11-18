@@ -11,3 +11,6 @@
   font-weight: 600;
   letter-spacing: 0.4px;
 }
+.header-zone {
+  margin-top: -10px;   /* remonte de 10px */
+}

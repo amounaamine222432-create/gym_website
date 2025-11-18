@@ -10,7 +10,8 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path("user/profile/", views.full_profile, name="full-profile"),
     path("user/update-profile/", views.update_full_profile, name="update-full-profile"),
-  
+    path("user/status", views.user_status, name="user-status"),
+
    path("cours/", get_cours),                # liste complète des cours
     path("cours/list/", cours_list),          # petite liste rapide
     path("cours/mes/", mes_cours),            # mes participations
