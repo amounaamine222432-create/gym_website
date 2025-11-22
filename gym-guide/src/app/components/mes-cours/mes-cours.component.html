@@ -44,6 +44,14 @@
                     (click)="quitter(cours.id)">
               Quitter ✕
             </button>
+
+              <!-- 🎥 Bouton vidéos IA -->
+            <button 
+              class="btn btn-secondary px-4 rounded-pill mt-2"
+              [routerLink]="['/cours', cours.id, 'videos']">
+              🎥 Voir Vidéos
+            </button>
+         
           </div>
 
         </div>
@@ -53,7 +61,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- ============================= -->
 <!-- 🔥 MODAL BOOTSTRAP : COACHS -->
@@ -132,13 +139,6 @@
       </div>
     </div>
   </div>
-    <!-- ⭐ FORMULAIRE AVIS ICI -->
-  <div class="mt-4 p-3 bg-light rounded-4 shadow-sm">
-    <app-review-form
-  *ngIf="selectedCours && selectedCoach"
-  [coursId]="selectedCours.id"
-  [coachId]="selectedCoach.id">
-</app-review-form>
-  </div>
+  
 
 </div>

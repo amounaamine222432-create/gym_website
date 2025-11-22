@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AvisComponent } from './avis/avis.component';
 
 export const routes: Routes = [
 
@@ -108,6 +109,17 @@ export const routes: Routes = [
       import('./success/success.component')
         .then(m => m.SuccessComponent)
   },
+    {
+    path: 'avis',
+    component: AvisComponent
+  },
+  
+  {
+  path: 'cours/:id/videos',
+  loadComponent: () => import('./videos/videos.component').then(m => m.VideosComponent)
+},
+
+
 
   // CATCH ALL
   { path: '**', redirectTo: '', pathMatch: 'full' }

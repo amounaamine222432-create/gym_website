@@ -12,10 +12,18 @@ from datetime import datetime
 from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
+from django.contrib.auth import get_user_model
+from .serializers import ReviewSerializer, GeneralFeedbackSerializer
+from .models import Review, GeneralFeedback, Cours, AIVideoCache
+from .ai.video_generator import generate_ai_videos
 
 
 import stripe
 from django.http import HttpResponse
+User = get_user_model()
+def current_month():
+    """Retourne le 1er jour du mois actuel."""
+    return date.today().replace(day=1)
 
 # ---condition complete---------------------------------------------------
 def check_profile_completed(profile: Profile, adherent: Adherent) -> bool:
@@ -698,22 +706,54 @@ def join_seance(request, id):
     return Response({"success": "✨ Séance réservée avec succès !"})
 
 
+# ------------------------------
+# DASHBOARD
+# ------------------------------
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.utils import timezone
+from datetime import timedelta
+
+from .models import (
+    CoursParticipation,
+    ClientCoachSelection,
+    Seance
+)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def dashboard_stats(request):
+    user = request.user
+
+    cours_count = CoursParticipation.objects.filter(user=user).count()
+
+    coachs_count = ClientCoachSelection.objects.filter(
+        user=user
+    ).values("coach").distinct().count()
+
+    seances_count = Seance.objects.filter(
+        clients=user
+    ).count()
+
+    return Response({
+        "cours": cours_count,
+        "coachs": coachs_count,
+        "seances": seances_count
+    })
 
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_my_coach_month(request):
-
     user = request.user
-    now = timezone.now()
-    mois = now.month
-    annee = now.year
+    month = timezone.now().strftime("%Y-%m")
 
     selections = ClientCoachSelection.objects.filter(
-    user=user,
-    month=timezone.now().strftime("%Y-%m")
-).select_related("coach", "cours")
-
+        user=user,
+        month=month
+    ).select_related("coach", "cours")
 
     data = [
         {
@@ -731,7 +771,6 @@ def get_my_coach_month(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_my_next_seances(request):
-
     user = request.user
     today = timezone.now().date()
 
@@ -752,10 +791,11 @@ def get_my_next_seances(request):
     ]
 
     return Response(data)
+
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_my_week_seances(request):
-
     user = request.user
     today = timezone.now().date()
     end = today + timedelta(days=7)
@@ -770,33 +810,12 @@ def get_my_week_seances(request):
             "cours": s.cours.titre,
             "coach": f"{s.coach.prenom} {s.coach.nom}",
             "date": s.date_seance,
-            "heure": s.heure_debut
+            "heure": s.heure_debut,
         }
         for s in seances
     ]
 
     return Response(data)
-
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def dashboard_stats(request):
-    user = request.user
-
-    # Nombre de cours suivis
-    cours_count = CoursParticipation.objects.filter(user=user).count()
-
-    # Nombre de coachs rencontrés (coach du mois)
-    coachs_count = ClientCoachSelection.objects.filter(user=user).values("coach").distinct().count()
-
-    # Nombre de séances réservées
-    seances_count = Seance.objects.filter(clients=user).count()
-
-    return Response({
-        "cours": cours_count,
-        "coachs": coachs_count,
-        "seances": seances_count
-    })
-
 
 from django.http import JsonResponse
 from .models import Seance
@@ -863,3 +882,151 @@ class SeancesByCoach(APIView):
         return Response(data)
 
 
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_my_cours_and_coachs(request):
+    """
+    Retourne automatiquement :
+    - les cours où l’utilisateur est inscrit
+    - le coach du cours (via séance réservée)
+    """
+
+    user = request.user
+
+    # 1) Cours où l'adhérent est inscrit
+    participations = CoursParticipation.objects.filter(user=user)
+
+    data = []
+
+    for part in participations:
+        cours = part.cours
+
+        # 2) Chercher un coach via les séances réservées
+        seances = Seance.objects.filter(
+            cours=cours,
+            clients=user
+        ).select_related("coach")
+
+        if not seances.exists():
+            continue
+
+        coach = seances.first().coach
+
+        data.append({
+            "cours": {
+                "id": cours.id,
+                "titre": cours.titre
+            },
+            "coach": {
+                "id": coach.id,
+                "nom": coach.nom,
+                "prenom": coach.prenom
+            }
+        })
+
+    return Response(data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def submit_reviews(request):
+    """
+    Enregistre :
+    - avis cours + coach (Review)
+    - avis général (GeneralFeedback)
+    """
+
+    user = request.user
+    month = current_month()
+
+    # --------------------------
+    # 1) AVIS COURS + COACH
+    # --------------------------
+    cours_reviews = request.data.get("cours_reviews", [])
+
+    for item in cours_reviews:
+
+        Review.objects.update_or_create(
+            user=user,
+            cours_id=item["cours_id"],
+            coach_id=item["coach_id"],
+            month=month,
+            defaults={
+                "rating": item["rating"],
+                "comment": item.get("comment", "")
+            }
+        )
+
+    # --------------------------
+    # 2) AVIS GÉNÉRAL
+    # --------------------------
+    GeneralFeedback.objects.update_or_create(
+        user=user,
+        month=month,
+        defaults={
+            "material": request.data.get("material"),
+            "equipment": request.data.get("equipment"),
+            "salle": request.data.get("salle"),
+            "ambiance": request.data.get("ambiance"),
+            "comment": request.data.get("general_comment")
+        }
+    )
+
+    return Response({"message": "Avis enregistrés avec succès"})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_course_videos_ai(request, cours_id):
+
+    print("\n==============================")
+    print("🎬 APPEL API → /videos-ai/")
+    print(f"Cours ID : {cours_id}")
+    print(f"Refresh : {request.query_params}")
+    print("==============================")
+
+    # Vérification refresh
+    refresh = request.query_params.get("refresh", "").lower() == "true"
+    print("🔄 Refresh demandé :", refresh)
+
+    # Récupération cours
+    try:
+        cours = Cours.objects.get(id=cours_id)
+        print("✔ Cours trouvé :", cours.titre)
+    except Cours.DoesNotExist:
+        return Response({"error": "Cours introuvable"}, status=404)
+
+    # Cache
+    cache, created = AIVideoCache.objects.get_or_create(cours=cours)
+    print("🗃 Nouveau cache créé :", created)
+    print("📦 Cache actuel :", cache.videos)
+
+    # CONDITIONS DE RÉGÉNÉRATION
+    must_regenerate = (
+        created or 
+        refresh or 
+        not cache.videos or 
+        len(cache.videos) < 10
+    )
+
+    print("🔁 Génération nécessaire ?", must_regenerate)
+
+    if must_regenerate:
+        print("⚡ APPEL AI → generate_ai_videos()")
+        videos = generate_ai_videos(cours)
+        print("✔ AI terminé, vidéos reçues :", len(videos))
+
+        # Sécurité
+        if not isinstance(videos, list):
+            videos = []
+
+        videos = videos[:10]
+        print("🎞 Sauvegarde des vidéos (10 max)")
+
+        cache.videos = videos
+        cache.save()
+
+    print("✔ Retour API réussi (200 OK)")
+    return Response(cache.videos, status=200)

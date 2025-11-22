@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import Seance
+from .models import Review, GeneralFeedback
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 
 class SeanceSerializer(serializers.ModelSerializer):
     coach_nom = serializers.CharField(source="coach.nom", read_only=True)
@@ -25,17 +28,41 @@ class SeancesByCoach(generics.ListAPIView):
         ).order_by("date_seance", "heure_debut")
     
 
-    class ReviewSerializer(serializers.ModelSerializer):
-        user_name = serializers.CharField(source='user.username', read_only=True)
-        coach_name = serializers.CharField(source='coach.prenom', read_only=True)
-        cours_title = serializers.CharField(source='cours.titre', read_only=True)
+    # ===========================
+#  SERIALIZER AVIS COURS + COACH
+# ===========================
+class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
         fields = [
-            "id", "user", "cours", "coach",
-            "rating", "comment", "month",
-            "user_name", "coach_name", "cours_title",
-            "created_at", "updated_at"
+            'id',
+            'user',
+            'cours',
+            'coach',
+            'rating',
+            'comment',
+            'month',
+            'created_at',
+            'updated_at'
         ]
-        read_only_fields = ("user", "month")
+        read_only_fields = ('created_at', 'updated_at')
+
+
+# ===========================
+#  SERIALIZER AVIS GÉNÉRAL
+# ===========================
+class GeneralFeedbackSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = GeneralFeedback
+        fields = [
+            'id',
+            'user',
+            'month',
+            'material',
+            'equipment',
+            'salle',
+            'ambiance',
+            'comment'
+        ]

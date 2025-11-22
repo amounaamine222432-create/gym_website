@@ -4,12 +4,11 @@ import { RouterLink } from '@angular/router';
 import { SubscriptionService } from '../services/subscription.service';
 import { ActivatedRoute } from '@angular/router';
 import { DashboardService } from '../services/dashboard.service';
-import { DashboardReviewsComponent } from '../dashboard-reviews/dashboard-reviews.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, DashboardReviewsComponent ],
+  imports: [CommonModule, RouterLink ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })

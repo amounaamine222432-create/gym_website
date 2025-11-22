@@ -1,31 +1,49 @@
 import { Component, OnInit } from '@angular/core';
-import { CoursService } from '../../services/cours.service';
 import { CommonModule } from '@angular/common';
-import { ReviewFormComponent } from '../../reviews/review-form/review-form.component'; // 👈 AJOUT
+import { RouterModule } from '@angular/router';
+import { SafeUrlPipe } from '../../shared/safe-url.pipe';
+
+import { CoursService } from '../../services/cours.service';
+import { VideoService } from '../../services/video.service';
 
 @Component({
   standalone: true,
   selector: 'app-mes-cours',
   templateUrl: './mes-cours.component.html',
   styleUrls: ['./mes-cours.component.css'],
-  imports: [CommonModule, ReviewFormComponent ],
+  imports: [CommonModule, RouterModule, SafeUrlPipe],
 })
 export class MesCoursComponent implements OnInit {
 
+  // ==========================
+  // Variables principales
+  // ==========================
   tousCours: any[] = [];
   mesCours: any[] = [];
 
-  selectedCoach: any;
-selectedCours: any;
+  selectedCours: any = null;
+  selectedCoach: number | null = null;
 
   coachs: any[] = [];
   seances: any[] = [];
-  
 
   loading = false;
 
-  constructor(private coursService: CoursService) {}
+  // ==========================
+  // 🎥 Vidéos
+  // ==========================
+  videos: any[] = [];
+  modalVisible = false;
 
+  constructor(
+    private coursService: CoursService,
+  private videoService: VideoService
+
+  ) {}
+
+  // ==========================
+  // INIT
+  // ==========================
   ngOnInit(): void {
     this.loadCours();
   }
@@ -47,24 +65,26 @@ selectedCours: any;
     return this.mesCours.some(c => c.id === coursId);
   }
 
+  // ==========================
+  // Gestion participation
+  // ==========================
   participer(id: number) {
     this.coursService.joinCours(id).subscribe({
       next: () => this.loadCours(),
-      error: () => alert('❌ Déjà inscrit')
+      error: () => alert("❌ Déjà inscrit"),
     });
   }
 
   quitter(id: number) {
     this.coursService.quitCours(id).subscribe({
       next: () => this.loadCours(),
-      error: () => alert('❌ Vous n’êtes pas inscrit à ce cours')
+      error: () => alert("❌ Vous n’êtes pas inscrit à ce cours"),
     });
   }
 
-  // =========================
-  //  🔥 MODAL : Coachs
-  // =========================
-
+  // ==========================
+  // 👨‍🏫 Gestion Coach
+  // ==========================
   openCoachsModal(cours: any) {
     this.selectedCours = cours;
     this.selectedCoach = null;
@@ -73,7 +93,6 @@ selectedCours: any;
     this.coursService.getCoachs(cours.id).subscribe((data: any) => {
       this.coachs = data;
 
-      // ouvrir modal
       const modal = document.getElementById('coachModal') as HTMLElement;
       modal.style.display = 'block';
     });
@@ -84,38 +103,50 @@ selectedCours: any;
     modal.style.display = 'none';
   }
 
- choisirCoach(coachId: number) {
-  this.selectedCoach = coachId;
+  choisirCoach(coachId: number) {
+    this.selectedCoach = coachId;
 
-  // 1️⃣ On enregistre le choix du coach
-  this.coursService.choisirCoach(this.selectedCours.id, coachId).subscribe({
-    next: () => {
-      // 2️⃣ Puis on charge ses séances
-      this.loadSeances(coachId);
-    },
-    error: () => alert("❌ Ce coach est déjà assigné ce mois-ci")
-  });
-}
-
-loadSeances(coachId: number) {
-  this.coursService.getSeancesByCoach(this.selectedCours.id, coachId)
-    .subscribe((data: any) => {
-      this.seances = data;
+    this.coursService.choisirCoach(this.selectedCours.id, coachId).subscribe({
+      next: () => this.loadSeances(coachId),
+      error: () => alert("❌ Ce coach est déjà assigné ce mois-ci"),
     });
-}
-reserver(seanceId: number) {
-  this.coursService.reserverSeance(seanceId).subscribe({
-    next: () => {
-      alert("✔ Réservation confirmée !");
-      this.closeModal();
+  }
+
+  loadSeances(coachId: number) {
+    this.coursService.getSeancesByCoach(this.selectedCours.id, coachId)
+      .subscribe((data: any) => this.seances = data);
+  }
+  
+
+  reserver(seanceId: number) {
+    this.coursService.reserverSeance(seanceId).subscribe({
+      next: () => {
+        alert("✔ Réservation confirmée !");
+        this.closeModal();
+      },
+      error: (err) => {
+        if (err.error?.error) {
+          alert("❌ " + err.error.error);
+        } else {
+          alert("❌ Erreur lors de la réservation");
+        }
+      },
+    });
+  }
+
+  // ==========================
+  // 🎥 Vidéos
+  // ==========================
+  ouvrirVideos(coursId: number) {
+  this.videoService.getVideos(coursId).subscribe({
+    next: (data: any) => {
+      this.videos = data;
+      this.modalVisible = true;
     },
-    error: (err) => {
-      if (err.error?.error) {
-        alert("❌ " + err.error.error);  // message backend
-      } else {
-        alert("❌ Erreur lors de la réservation");
-      }
+    error: () => {
+      alert("❌ Impossible de charger les vidéos");
     }
   });
 }
+
 }

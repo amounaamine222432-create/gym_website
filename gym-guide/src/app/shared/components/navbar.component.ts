@@ -71,6 +71,12 @@ import { ThemeToggleComponent } from './theme-toggle.component';
           <a routerLink="/subscription" routerLinkActive="active-link" class="nav-link">
               Abonnement
           </a>
+          <li class="nav-item">
+  <a routerLink="/avis" routerLinkActive="active"
+     class="nav-link fw-bold">
+    📝 Avis
+  </a>
+</li>
 
           <!-- Coachs visible -->
           <li class="nav-item d-none d-lg-block">

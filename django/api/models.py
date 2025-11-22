@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import timedelta, date
 from django.contrib.auth import get_user_model
+from datetime import date
+month = date.today().replace(day=1)
+
 User = get_user_model()
 # ===========================
 #  PROFIL UTILISATEUR
@@ -150,7 +153,8 @@ class Seance(models.Model):
 #  LIEN COACH–COURS
 # ===========================
 class CoachCours(models.Model):
-    coach = models.ForeignKey(Coach, on_delete=models.CASCADE)
+    coach = models.ForeignKey(Coach, on_delete=models.CASCADE, null=True, blank=True)
+
     cours = models.ForeignKey(Cours, on_delete=models.CASCADE)
 
     class Meta:
@@ -203,7 +207,7 @@ class Subscription(models.Model):
 class ClientCoachSelection(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     cours = models.ForeignKey(Cours, on_delete=models.CASCADE)
-    coach = models.ForeignKey(Coach, on_delete=models.CASCADE)
+    coach = models.ForeignKey(Coach, on_delete=models.CASCADE, null=True, blank=True)
     month = models.CharField(max_length=7)  # "2025-11"
 
     class Meta:
@@ -213,20 +217,75 @@ class ClientCoachSelection(models.Model):
         return f"{self.user.username} - {self.cours.titre} - {self.month}"
 
 
-
-
-
 class Review(models.Model):
+    """
+    Un avis par cours + coach par mois.
+    Exemple : un adhérent peut donner un avis sur BodyPump + Coach Karim
+    une fois par mois.
+    """
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     cours = models.ForeignKey(Cours, on_delete=models.CASCADE)
-    coach = models.ForeignKey(Coach, on_delete=models.SET_NULL, null=True, blank=True)
+    coach = models.ForeignKey(Coach, on_delete=models.CASCADE, null=True, blank=True)
 
-    rating = models.IntegerField()  # 1 à 5
+    rating = models.IntegerField()
     comment = models.TextField(blank=True)
-    month = models.CharField(max_length=7)  # "2025-11"
+
+    # Mois du format AAAA-MM-01
+    month = models.DateField()
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('user', 'cours', 'month')
+        unique_together = ('user', 'cours', 'coach', 'month')
+
+    def __str__(self):
+        return f"{self.user.username} → {self.cours.titre} ({self.coach.nom})"
+
+
+# ===========================
+#  AVIS GÉNÉRAL MENSUEL
+# ===========================
+class GeneralFeedback(models.Model):
+    """
+    Un avis global par mois sur :
+    - matériel
+    - équipements
+    - ambiance
+    - salles
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    month = models.DateField()
+
+    material = models.IntegerField(null=True)
+    equipment = models.IntegerField(null=True)
+    salle = models.IntegerField(null=True)
+    ambiance = models.IntegerField(null=True)
+
+    comment = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ('user', 'month')
+
+    def __str__(self):
+                return f"Avis général {self.user.username} ({self.month})"
+
+
+
+class AIVideoCache(models.Model):
+    cours = models.OneToOneField("Cours", on_delete=models.CASCADE, related_name="ai_videos")
+    videos = models.JSONField()
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"AI Videos Cache for {self.cours.titre}"
+
+class AIVideoCache(models.Model):
+    cours = models.OneToOneField("Cours", on_delete=models.CASCADE, related_name="ai_videos")
+    videos = models.JSONField(default=list)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"AI Videos for {self.cours.titre}"

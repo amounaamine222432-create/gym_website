@@ -8,6 +8,7 @@ export class CoursService {
 
   private api = 'http://127.0.0.1:8000/api';
   private baseUrl = "http://127.0.0.1:8000/api";
+  private apiUrl = 'http://127.0.0.1:8000/api';
 
   constructor(private http: HttpClient, private auth: AuthService) {}
 
@@ -74,6 +75,11 @@ reserverSeance(seanceId: number) {
     { headers: this.auth.getAuthHeaders() }
   );
 }
+getVideos(coursId: number) {
+  return this.http.get<any>(`${this.apiUrl}/cours/${coursId}/videos/`);
+}
+
+
 
 
 

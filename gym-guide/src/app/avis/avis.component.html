@@ -1,0 +1,144 @@
+<div class="container py-4 avis-container">
+
+  <h2 class="text-center fw-bold mb-4">
+    ⭐ Mes Avis du Mois
+  </h2>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+  </div>
+
+  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="submit()"
+        class="p-4 rounded-4 shadow avis-box">
+
+    <!-- ------------------------------ -->
+    <!-- 📘 AVIS COURS + COACHS         -->
+    <!-- ------------------------------ -->
+
+    <h4 class="fw-bold mb-3">📘 Avis par Cours & Coach</h4>
+
+    <div formArrayName="cours_reviews">
+
+      <div class="card p-3 mb-3 rounded-4"
+           *ngFor="let item of coursReviewsArray.controls; let i = index"
+           [formGroupName]="i">
+
+        <h5 class="fw-bold">
+          {{ coursCoachList[i].cours.titre }}
+        </h5>
+
+        <p class="text-muted small">
+          👨‍🏫 Coach : {{ coursCoachList[i].coach.nom }} {{ coursCoachList[i].coach.prenom }}
+        </p>
+
+        <!-- ⭐ Nouveau rating UX -->
+        <label class="form-label fw-bold">Note :</label>
+
+        <div class="rating-container">
+          <div
+            class="rating-item"
+            *ngFor="let opt of ratingOptions"
+            [class.active]="coursReviewsArray.at(i).value.rating === opt.value"
+            [style.borderColor]="opt.color"
+            (click)="selectCoursReview(i, opt.value)"
+          >
+            <span class="dot" [style.backgroundColor]="opt.color"></span>
+            <span class="label">{{ opt.label }}</span>
+            <span class="check" *ngIf="coursReviewsArray.at(i).value.rating === opt.value">✔</span>
+          </div>
+        </div>
+
+        <label class="form-label fw-bold">Commentaire :</label>
+        <textarea class="form-control mb-2"
+                  rows="2"
+                  placeholder="Votre avis..."
+                  formControlName="comment"></textarea>
+
+      </div>
+
+    </div>
+
+    <hr class="my-4">
+
+    <!-- ------------------------------ -->
+    <!-- 💬 AVIS GÉNÉRAL               -->
+    <!-- ------------------------------ -->
+
+    <h4 class="fw-bold mb-3">💬 Avis Général</h4>
+
+    <!-- MATÉRIEL -->
+    <label class="form-label fw-bold">Matériel :</label>
+    <div class="rating-container mb-3">
+      <div
+        class="rating-item"
+        *ngFor="let opt of ratingOptions"
+        [class.active]="form.get('material')?.value === opt.value"
+        [style.borderColor]="opt.color"
+        (click)="form.patchValue({ material: opt.value })"
+      >
+        <span class="dot" [style.backgroundColor]="opt.color"></span>
+        <span class="label">{{ opt.label }}</span>
+        <span class="check" *ngIf="form.get('material')?.value === opt.value">✔</span>
+      </div>
+    </div>
+
+    <!-- ÉQUIPEMENTS -->
+    <label class="form-label fw-bold">Équipements :</label>
+    <div class="rating-container mb-3">
+      <div
+        class="rating-item"
+        *ngFor="let opt of ratingOptions"
+        [class.active]="form.get('equipment')?.value === opt.value"
+        [style.borderColor]="opt.color"
+        (click)="form.patchValue({ equipment: opt.value })"
+      >
+        <span class="dot" [style.backgroundColor]="opt.color"></span>
+        <span class="label">{{ opt.label }}</span>
+        <span class="check" *ngIf="form.get('equipment')?.value === opt.value">✔</span>
+      </div>
+    </div>
+
+    <!-- AMBIANCE -->
+    <label class="form-label fw-bold">Ambiance :</label>
+    <div class="rating-container mb-3">
+      <div
+        class="rating-item"
+        *ngFor="let opt of ratingOptions"
+        [class.active]="form.get('ambiance')?.value === opt.value"
+        [style.borderColor]="opt.color"
+        (click)="form.patchValue({ ambiance: opt.value })"
+      >
+        <span class="dot" [style.backgroundColor]="opt.color"></span>
+        <span class="label">{{ opt.label }}</span>
+        <span class="check" *ngIf="form.get('ambiance')?.value === opt.value">✔</span>
+      </div>
+    </div>
+
+    <!-- SALLE -->
+    <label class="form-label fw-bold">Salle :</label>
+    <div class="rating-container mb-3">
+      <div
+        class="rating-item"
+        *ngFor="let opt of ratingOptions"
+        [class.active]="form.get('salle')?.value === opt.value"
+        [style.borderColor]="opt.color"
+        (click)="form.patchValue({ salle: opt.value })"
+      >
+        <span class="dot" [style.backgroundColor]="opt.color"></span>
+        <span class="label">{{ opt.label }}</span>
+        <span class="check" *ngIf="form.get('salle')?.value === opt.value">✔</span>
+      </div>
+    </div>
+
+    <textarea class="form-control mb-4"
+              rows="3"
+              placeholder="Remarque générale..."
+              formControlName="general_comment"></textarea>
+
+    <button class="btn btn-primary w-100 py-2 rounded-pill fw-bold">
+      Envoyer mes avis
+    </button>
+
+  </form>
+</div>

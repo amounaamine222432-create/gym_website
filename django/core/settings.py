@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'api',  # 👈 très important
+    
 ]
 
 
@@ -164,3 +165,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 STRIPE_SECRET_KEY ="sk_test_51SVnrl2OdAFmGpNybcY126RtwIed9pL03HfRkPK20LDwQXBv53JIvP0cU24xzET7LkQXALM2We8e6RCfkwpeZh4K00f6IwuzSK"
 STRIPE_PUBLIC_KEY = "pk_test_51SVnrl2OdAFmGpNy3VkGaoxTkl8dr0lAVQVlVIDn8nShnkmQLC4Fggo1xDw0nv5FXXgaS4dppMjdWGkZTewiiGij00a862wADY"
 STRIPE_WEBHOOK_SECRET = "whsec_864ed78507560d30bdf3508f6e64e54df79742eed2a09e1370f93259f57b6a95"
+
+import os
+
+YOUTUBE_API_KEY = "AIzaSyDdWCatsFm0dIhURLkvUuZ3Y9DAK6V9FzA"
