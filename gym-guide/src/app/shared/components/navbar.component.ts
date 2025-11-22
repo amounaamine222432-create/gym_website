@@ -68,6 +68,10 @@ import { ThemeToggleComponent } from './theme-toggle.component';
             </ul>
           </li>
 
+          <a routerLink="/subscription" routerLinkActive="active-link" class="nav-link">
+              Abonnement
+          </a>
+
           <!-- Coachs visible -->
           <li class="nav-item d-none d-lg-block">
             <a class="nav-link" routerLink="/coaches">Coachs</a>
@@ -75,6 +79,7 @@ import { ThemeToggleComponent } from './theme-toggle.component';
           <li class="nav-item d-none d-lg-block" *ngIf="showProfileButton">
                <a class="nav-link" routerLink="/profil">Mon Profil</a>
               </li>
+              
 
           <!-- 🌗 Dark Mode -->
           <li class="nav-item">
@@ -156,6 +161,11 @@ import { ThemeToggleComponent } from './theme-toggle.component';
     .pulse-badge {
       animation: pulse 1.5s infinite;
     }
+    .active-link {
+  font-weight: bold;
+  color: #0d6efd !important;
+}
+
     @keyframes pulse {
       0% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.8); opacity: 0.4; }

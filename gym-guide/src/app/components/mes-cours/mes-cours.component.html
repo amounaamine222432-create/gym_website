@@ -96,29 +96,49 @@
 
         <hr class="my-4" *ngIf="selectedCoach">
 
-        <!-- Liste des séances -->
-        <div *ngIf="seances.length > 0">
-          <h5 class="fw-bold mb-3">Séances disponibles</h5>
+    <!-- Liste des séances -->
+<div *ngIf="selectedCoach" class="mt-4">
 
-          <ul class="list-group">
-            <li *ngFor="let s of seances" class="list-group-item">
-              📅 {{ s.date }} • {{ s.heure_debut }} → {{ s.heure_fin }}  
-              <span class="badge bg-primary ms-2">{{ s.salle }}</span>
-            </li>
-          </ul>
+  <h5 class="fw-bold text-center mb-3">
+    Séances disponibles
+  </h5>
 
+  <!-- Aucune séance -->
+  <div *ngIf="seances.length === 0" class="text-danger text-center">
+    ❌ Aucune séance planifiée pour ce coach.
+  </div>
+
+  <!-- Cartes des séances -->
+  <div class="row g-3" *ngIf="seances.length > 0">
+    <div class="col-md-4" *ngFor="let s of seances">
+      <div class="card p-3 shadow-sm rounded-4">
+        <h6 class="fw-bold">
+          {{ s.date_seance | date:'EEEE dd MMMM':'fr' }}
+        </h6>
+
+        <div class="text-muted small">
+          {{ s.heure_debut }} → {{ s.heure_fin }}
         </div>
 
-        <p *ngIf="selectedCoach && seances.length === 0" class="text-center text-muted">
-          ❌ Aucune séance planifiée pour ce coach.
-        </p>
+        <div class="small mb-2">
+          Salle : {{ s.salle }}
+        </div>
+
+       <button class="btn btn-success btn-sm w-100"
+        (click)="reserver(s.id)">
+  Réserver
+</button>
 
       </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeModal()">Fermer</button>
-      </div>
-
     </div>
   </div>
+    <!-- ⭐ FORMULAIRE AVIS ICI -->
+  <div class="mt-4 p-3 bg-light rounded-4 shadow-sm">
+    <app-review-form
+  *ngIf="selectedCours && selectedCoach"
+  [coursId]="selectedCours.id"
+  [coachId]="selectedCoach.id">
+</app-review-form>
+  </div>
+
 </div>

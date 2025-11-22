@@ -1,16 +1,24 @@
 import { Routes } from '@angular/router';
-import { ProfilComponent } from './pages/profil/profil.component';
 
 export const routes: Routes = [
 
+  // PAGE ACCUEIL
   { 
     path: '', 
-    loadComponent: () => import('./pages/home/home.component')
-      .then(m => m.HomeComponent) 
+    loadComponent: () =>
+      import('./pages/home/home.component')
+        .then(m => m.HomeComponent)
   },
 
-  { path: 'profil', component: ProfilComponent },
+  // PROFIL (protected ? → à toi de choisir)
+  {
+    path: 'profil',
+    loadComponent: () =>
+      import('./pages/profil/profil.component')
+        .then(m => m.ProfilComponent)
+  },
 
+  // COURS
   {
     path: 'courses',
     loadComponent: () =>
@@ -23,18 +31,24 @@ export const routes: Routes = [
       import('./pages/course-detail/course-detail.component')
         .then(m => m.CourseDetailComponent)
   },
+
+  // COACHS
   {
     path: 'coaches',
     loadComponent: () =>
       import('./pages/coaches/coaches.component')
         .then(m => m.CoachesComponent)
   },
+
+  // CONTACT
   {
     path: 'contact',
     loadComponent: () =>
       import('./pages/contact/contact.component')
         .then(m => m.ContactComponent)
   },
+
+  // AUTHENTIFICATION
   {
     path: 'login',
     loadComponent: () =>
@@ -54,33 +68,47 @@ export const routes: Routes = [
         .then(m => m.OtpComponent)
   },
 
-  /** ✅ La route correcte MES COURS */
-{
-  path: 'mes-cours',
-  loadComponent: () =>
-    import('./components/mes-cours/mes-cours.component')
-      .then(m => m.MesCoursComponent)
-},
-{
-  path: 'dashboard',
-  loadComponent: () =>
-    import('./dashboard/dashboard.component')
-      .then(m => m.DashboardComponent)
-},
+  // MES COURS
+  {
+    path: 'mes-cours',
+    loadComponent: () =>
+      import('./components/mes-cours/mes-cours.component')
+        .then(m => m.MesCoursComponent)
+  },
 
-{
-  path: 'dashboard',
-  canActivate: [() => !!localStorage.getItem('access')],
-  loadComponent: () =>
-    import('./dashboard/dashboard.component').then(m => m.DashboardComponent)
-},
+  // DASHBOARD
+  {
+    path: 'dashboard',
+    canActivate: [() => !!localStorage.getItem('access')],
+    loadComponent: () =>
+      import('./dashboard/dashboard.component')
+        .then(m => m.DashboardComponent)
+  },
 
+  // PAIEMENT
+  {
+    path: 'payer',
+    loadComponent: () =>
+      import('./payer/payer.component')
+        .then(m => m.PayerComponent)
+  },
 
+  // ABONNEMENT
+  {
+    path: 'subscription',
+    loadComponent: () =>
+      import('./subscription/subscription.component')
+        .then(m => m.SubscriptionComponent)
+  },
 
+  // SUCCESS PAIEMENT
+  {
+    path: 'success',
+    loadComponent: () =>
+      import('./success/success.component')
+        .then(m => m.SuccessComponent)
+  },
 
-
-
-  /** ❗ Toujours mettre ceci *à la fin* */
+  // CATCH ALL
   { path: '**', redirectTo: '', pathMatch: 'full' }
-
 ];

@@ -1,0 +1,91 @@
+<div class="pricing-container">
+  <h1 class="title">Nos Offres d’Abonnement</h1>
+
+  <!-- 🟢 Message si déjà abonné -->
+  <div *ngIf="activeSubscription" class="alert alert-success mb-4 text-center fw-semibold">
+    🎉 Vous avez déjà un abonnement actif : <b>{{ activeSubscription.plan }}</b><br>
+    Vous ne pouvez pas souscrire à un nouvel abonnement.
+  </div>
+
+  <div class="pricing-wrapper">
+
+    <!-- Plan Mensuel -->
+    <div 
+      class="pricing-card"
+      [class.disabled]="activeSubscription"
+      (click)="!activeSubscription && selectPlan('monthly')">
+
+      <h2 class="plan-name">Mensuel</h2>
+      <p class="plan-price">30 DT</p>
+      <p class="plan-desc">Accès complet pendant 30 jours</p>
+
+      <ul class="plan-features">
+        <li>✔ Cours illimités</li>
+        <li>✔ Suivi des progrès</li>
+        <li>✔ Accessible 24/7</li>
+      </ul>
+
+      <button 
+        class="plan-btn"
+        [disabled]="activeSubscription"
+        (click)="!activeSubscription && selectPlan('monthly')">
+        Choisir
+      </button>
+    </div>
+
+    <!-- Plan Trimestriel -->
+    <div 
+      class="pricing-card popular"
+      [class.disabled]="activeSubscription"
+      (click)="!activeSubscription && selectPlan('quarterly')">
+
+      <div class="badge-popular">⭐ Populaire</div>
+
+      <h2 class="plan-name">Trimestriel</h2>
+      <p class="plan-price">80 DT</p>
+      <p class="plan-desc">Économisez +20 DT</p>
+
+      <ul class="plan-features">
+        <li>✔ Accès 3 mois</li>
+        <li>✔ Cours illimités</li>
+        <li>✔ Coaching intelligent</li>
+      </ul>
+
+      <button 
+        class="plan-btn"
+        [disabled]="activeSubscription"
+        (click)="!activeSubscription && selectPlan('quarterly')">
+        Choisir
+      </button>
+    </div>
+
+    <!-- Plan Annuel -->
+    <div 
+      class="pricing-card"
+      [class.disabled]="activeSubscription"
+      (click)="!activeSubscription && selectPlan('annual')">
+
+      <h2 class="plan-name">Annuel</h2>
+      <p class="plan-price">250 DT</p>
+      <p class="plan-desc">Le meilleur rapport qualité/prix</p>
+
+      <ul class="plan-features">
+        <li>✔ Accès 12 mois</li>
+        <li>✔ Cours + Coaches illimités</li>
+        <li>✔ Suivi personnalisé</li>
+      </ul>
+
+      <button 
+        class="plan-btn"
+        [disabled]="activeSubscription"
+        (click)="!activeSubscription && selectPlan('annual')">
+        Choisir
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer-info">
+  🚀 Choisissez votre abonnement et profitez d’un accès illimité à tous nos cours et coachs !
+</div>

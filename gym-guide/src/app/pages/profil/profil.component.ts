@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
   selector: 'app-profil',
   imports: [CommonModule, FormsModule],
   template: `
-  <div class="container py-5" *ngIf="profile">
+    <div class="page-container">
 
   <h3 class="fw-bold mb-4 text-center">👤 Mon Profil</h3>
 
@@ -117,7 +117,12 @@ import { Router } from '@angular/router';
 <div *ngIf="!profile" class="text-center text-muted mt-5">
   Chargement du profil...
 </div>
-  `
+  `,
+  styles: [`
+  .page-container {
+      margin-top: 120px;
+  }
+`]
 })
 export class ProfilComponent implements OnInit {
 

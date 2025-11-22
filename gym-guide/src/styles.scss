@@ -1,8 +1,19 @@
-@import "bootstrap/scss/bootstrap";
+/* --- IMPORTS SASS (MUST BE FIRST) --- */
+@use "bootstrap/scss/bootstrap" as *;
+
+/* --- CSS FILE IMPORTS (normal) --- */
 @import "bootstrap-icons/font/bootstrap-icons.css";
 @import "animate.css/animate.min.css";
 @import "aos/dist/aos.css";
 
+/* --- TON CSS ENSUITE --- */
+body {
+  background: #fff;
+}
+
+.my-class {
+  color: red;
+}
 
 :root{
   --brand:#6C5CE7;
@@ -13,15 +24,46 @@
   --dark-text:#e2e8f0;
 }
 
-html,body{height:100%;scroll-behavior:smooth;background:var(--bg);color:var(--text);font-family:'Poppins',sans-serif;}
-body.dark{background:var(--dark-bg);color:var(--dark-text);}
-.shadow-soft{box-shadow:0 10px 30px rgba(0,0,0,.08);}
-.card-neo{border:0;border-radius:1.25rem;}
-.btn-brand{background:var(--brand);color:#fff;border:none;}
-.btn-brand:hover{background:#5849d6;color:#fff;}
-.hero{background:radial-gradient(1200px 600px at 20% 10%,rgba(108,92,231,.15),transparent 60%),linear-gradient(135deg,rgba(0,209,178,.12),rgba(108,92,231,.12));}
+html,body{
+  height:100%;
+  scroll-behavior:smooth;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Poppins',sans-serif;
+}
+
+body.dark{
+  background:var(--dark-bg);
+  color:var(--dark-text);
+}
+
+.shadow-soft{
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
+
+.card-neo{
+  border:0;
+  border-radius:1.25rem;
+}
+
+.btn-brand{
+  background:var(--brand);
+  color:#fff;
+  border:none;
+}
+
+.btn-brand:hover{
+  background:#5849d6;
+  color:#fff;
+}
+
+.hero{
+  background:radial-gradient(1200px 600px at 20% 10%,rgba(108,92,231,.15),transparent 60%),
+              linear-gradient(135deg,rgba(0,209,178,.12),rgba(108,92,231,.12));
+}
+
 .navbar-glass {
-  -webkit-backdrop-filter: saturate(180%) blur(12px); /* ✅ Support Safari / iOS */
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
   backdrop-filter: saturate(180%) blur(12px);
   background: rgba(255,255,255,.8);
   border-bottom: 1px solid rgba(0,0,0,.05);
@@ -33,22 +75,26 @@ body.dark{background:var(--dark-bg);color:var(--dark-text);}
   background: rgba(0,0,0,.6);
 }
 
-.card-hover{transition:transform .2s,box-shadow .2s;}
-.card-hover:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.12);}
-.dark .navbar-glass{background:rgba(0,0,0,.6);}
-.dark .card-hover:hover{box-shadow:0 12px 32px rgba(255,255,255,.12);}
+.card-hover{
+  transition:transform .2s,box-shadow .2s;
+}
+
+.card-hover:hover{
+  transform:translateY(-4px);
+  box-shadow:0 12px 32px rgba(0,0,0,.12);
+}
+
+.dark .card-hover:hover{
+  box-shadow:0 12px 32px rgba(255,255,255,.12);
+}
+
 html, body {
   height: 100%;
   background: var(--bg);
   color: var(--text);
-  scroll-behavior: smooth; /* ✅ ajoute le scroll fluide */
-}
-:target {
-  scroll-margin-top: 80px; /* espace sous la navbar */
-}
-html { scroll-behavior: smooth; }
-:target { scroll-margin-top: 80px; }
-html {
   scroll-behavior: smooth;
 }
 
+:target {
+  scroll-margin-top: 80px;
+}

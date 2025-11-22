@@ -73,6 +73,14 @@ export interface FullProfile {
 
   date_joined: string;
 }
+export interface SubscriptionResponse {
+  active: boolean;
+  plan?: string;
+  start_date?: string;
+  end_date?: string;
+  price?: number;
+}
+
 
 
 export interface Tarif{ id:number; title:string; price:number; features:string[]; best?:boolean; }

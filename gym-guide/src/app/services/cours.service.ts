@@ -54,9 +54,28 @@ export class CoursService {
   //  🔥 SÉANCES
   // ==========================
 
-  getSeances(coursId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/cours/${coursId}/seances/`);
-  }
+ /** 🔹 Récupérer les séances d’un coach pour un cours */
+getSeancesByCoach(coursId: number, coachId: number): Observable<any> {
+  return this.http.get(
+    `${this.baseUrl}/seances/`,
+    {
+      params: {
+        cours: coursId,
+        coach: coachId
+      }
+    }
+  );
+}
+/** 🔹 Réserver une séance */
+reserverSeance(seanceId: number) {
+  return this.http.post(
+    `${this.baseUrl}/seances/${seanceId}/join/`,
+    {},
+    { headers: this.auth.getAuthHeaders() }
+  );
+}
+
+
 
 }
 

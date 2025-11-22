@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Observable, of, delay, map , catchError, tap } from 'rxjs';
+import { Observable, of, delay, map , catchError, tap,throwError } from 'rxjs';
 import { HttpClient , HttpHeaders } from '@angular/common/http';
 import { Course, Coach, Tarif, Review, News, Message, SportEvent ,Athlete, FullProfile } from '../models';
 
@@ -9,6 +9,8 @@ export class ApiService {
   private apiKey = 'cfbfbc837ade99f58d3faa1c188f0a54';
   private newsCache: News[] | null = null;
 private baseUrl = 'http://127.0.0.1:8000/api';
+  private api = 'http://127.0.0.1:8000/api';
+
   private tokenKey = 'access_token';
   
   private apiUrl = 'https://football98.p.rapidapi.com/premierleague/table/squadname';
@@ -280,6 +282,25 @@ getEvents(sport: 'football' | 'basketball' | 'f1' | 'ufc' = 'football'): Observa
     )
   );
 }
+  // 🔥 CRÉATION ABONNEMENT
+  createSubscription(plan: string): Observable<any> {
+
+    const token = localStorage.getItem('access');
+    if (!token) {
+      return throwError(() => new Error('Vous devez vous reconnecter.'));
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.post(
+      `${this.api}/subscription/create/`,
+      { plan },
+      { headers }
+    );
+  }
 
 
 
@@ -308,6 +329,8 @@ getEvents(sport: 'football' | 'basketball' | 'f1' | 'ufc' = 'football'): Observa
 signup(data: FormData): Observable<any> {
   return this.http.post(`${this.baseUrl}/register/`, data);
 }
+
+
 
 
 

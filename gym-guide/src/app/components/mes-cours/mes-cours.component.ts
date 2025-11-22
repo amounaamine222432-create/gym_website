@@ -1,24 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { CoursService } from '../../services/cours.service';
 import { CommonModule } from '@angular/common';
+import { ReviewFormComponent } from '../../reviews/review-form/review-form.component'; // 👈 AJOUT
 
 @Component({
   standalone: true,
   selector: 'app-mes-cours',
   templateUrl: './mes-cours.component.html',
   styleUrls: ['./mes-cours.component.css'],
-  imports: [CommonModule],
+  imports: [CommonModule, ReviewFormComponent ],
 })
 export class MesCoursComponent implements OnInit {
 
   tousCours: any[] = [];
   mesCours: any[] = [];
 
-  selectedCours: any = null;
-  selectedCoach: number | null = null;
+  selectedCoach: any;
+selectedCours: any;
 
   coachs: any[] = [];
   seances: any[] = [];
+  
 
   loading = false;
 
@@ -82,17 +84,38 @@ export class MesCoursComponent implements OnInit {
     modal.style.display = 'none';
   }
 
-  choisirCoach(coachId: number) {
-    this.selectedCoach = coachId;
+ choisirCoach(coachId: number) {
+  this.selectedCoach = coachId;
 
-    this.coursService.choisirCoach(this.selectedCours.id, coachId).subscribe(() => {
-      this.loadSeances();
-    });
-  }
+  // 1️⃣ On enregistre le choix du coach
+  this.coursService.choisirCoach(this.selectedCours.id, coachId).subscribe({
+    next: () => {
+      // 2️⃣ Puis on charge ses séances
+      this.loadSeances(coachId);
+    },
+    error: () => alert("❌ Ce coach est déjà assigné ce mois-ci")
+  });
+}
 
-  loadSeances() {
-    this.coursService.getSeances(this.selectedCours.id).subscribe((data: any) => {
+loadSeances(coachId: number) {
+  this.coursService.getSeancesByCoach(this.selectedCours.id, coachId)
+    .subscribe((data: any) => {
       this.seances = data;
     });
-  }
+}
+reserver(seanceId: number) {
+  this.coursService.reserverSeance(seanceId).subscribe({
+    next: () => {
+      alert("✔ Réservation confirmée !");
+      this.closeModal();
+    },
+    error: (err) => {
+      if (err.error?.error) {
+        alert("❌ " + err.error.error);  // message backend
+      } else {
+        alert("❌ Erreur lors de la réservation");
+      }
+    }
+  });
+}
 }

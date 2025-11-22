@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-
-
+from datetime import timedelta, date
+from django.contrib.auth import get_user_model
+User = get_user_model()
 # ===========================
 #  PROFIL UTILISATEUR
 # ===========================
@@ -110,6 +111,7 @@ class Coach(models.Model):
     specialite = models.CharField(max_length=50)
     experience = models.IntegerField()  # en années
     photo = models.CharField(max_length=255)
+    start_shift_day = models.IntegerField(default=1)  # Jour départ (1-6)
 
     def __str__(self):
         return f"{self.prenom} {self.nom}"
@@ -125,14 +127,23 @@ class Seance(models.Model):
     heure_debut = models.TimeField()
     heure_fin = models.TimeField()
     salle = models.CharField(max_length=50)
-    statut = models.CharField(max_length=20, choices=[
-        ('planifie', 'planifié'),
-        ('effectue', 'effectué'),
-        ('annule', 'annulé')
-    ])
+
+    # ➕ AJOUTER CE CHAMP
+    clients = models.ManyToManyField(User, blank=True, related_name="seances_reservees")
+
+    statut = models.CharField(
+        max_length=20,
+        choices=[
+            ('planifie', 'planifié'),
+            ('effectue', 'effectué'),
+            ('annule', 'annulé')
+        ],
+        default="planifie"
+    )
 
     def __str__(self):
         return f"{self.cours.titre} ({self.date_seance})"
+
 
 
 # ===========================
@@ -149,5 +160,73 @@ class CoachCours(models.Model):
 
     def __str__(self):
         return f"{self.coach.nom} → {self.cours.titre}"
+    
+   
+class Subscription(models.Model):
+    PLAN_CHOICES = (
+        ("monthly", "Mensuel"),
+        ("quarterly", "Trimestriel"),
+        ("annual", "Annuel"),
+    )
+
+    STATUS = (
+        ("pending", "En attente de paiement"),
+        ("active", "Actif"),
+        ("expired", "Expiré"),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    plan = models.CharField(max_length=20, choices=PLAN_CHOICES)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS, default="pending")
+    transaction_id = models.CharField(max_length=200, null=True, blank=True)
+
+    def activate(self):
+        self.start_date = date.today()
+
+        if self.plan == "monthly":
+            self.end_date = self.start_date + timedelta(days=30)
+        elif self.plan == "quarterly":
+            self.end_date = self.start_date + timedelta(days=90)
+       
+        elif self.plan == "annual":
+            self.end_date = self.start_date + timedelta(days=365)
+
+        self.status = "active"
+        self.save()
+
+    def __str__(self):
+        return f"{self.user.username} - {self.plan} ({self.status})"
+
+class ClientCoachSelection(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    cours = models.ForeignKey(Cours, on_delete=models.CASCADE)
+    coach = models.ForeignKey(Coach, on_delete=models.CASCADE)
+    month = models.CharField(max_length=7)  # "2025-11"
+
+    class Meta:
+        unique_together = ('user', 'cours', 'month')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.cours.titre} - {self.month}"
 
 
+
+
+
+class Review(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    cours = models.ForeignKey(Cours, on_delete=models.CASCADE)
+    coach = models.ForeignKey(Coach, on_delete=models.SET_NULL, null=True, blank=True)
+
+    rating = models.IntegerField()  # 1 à 5
+    comment = models.TextField(blank=True)
+    month = models.CharField(max_length=7)  # "2025-11"
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'cours', 'month')

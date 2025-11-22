@@ -400,3 +400,50 @@
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+.progress {
+  height: 10px;
+  border-radius: 10px;
+}
+
+.progress-bar {
+  transition: width 0.7s ease;
+}
+.subscription-card {
+  border-left: 6px solid #28a745 !important;
+  border-radius: 12px;
+}
+
+.sub-icon {
+  padding: 12px;
+  background: #e8fbe8;
+  border-radius: 12px;
+}
+
+.animate-alert {
+  animation: fadeInDown 0.5s ease;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.dashboard-container {
+    margin-top: 0 !important;
+}
+
+.timeline .event {
+  border-left: 3px solid #0d6efd;
+  padding-left: 12px;
+  position: relative;
+}
+
+.timeline .event::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  background: #0d6efd;
+  border-radius: 50%;
+  position: absolute;
+  left: -7px;
+  top: 5px;
+}

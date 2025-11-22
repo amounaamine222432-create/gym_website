@@ -11,7 +11,8 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, RouterLink, FormsModule],
   template: `
   <section class="courses-section py-5">
-    <div class="container">
+        <div class="page-container">
+
       <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-5">
         <h2 class="fw-bold mb-0">Tous les cours</h2>
 
@@ -53,6 +54,9 @@ import { FormsModule } from '@angular/forms';
     .img-container {
       height: 220px;
       overflow: hidden;
+    }
+     .page-container {
+      margin-top: 120px;
     }
     .img-container img {
       width: 100%;
